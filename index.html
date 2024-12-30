@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP 請求狀態檢查</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+            background-color: #f2f2f2;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 20px 0;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #status {
+            font-size: 20px;
+            margin-top: 20px;
+            min-height: 24px;
+        }
+        .success {
+            color: green;
+        }
+        .fail {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>IP 請求狀態檢查</h1>
+    <button id="checkButton">檢查狀態</button>
+    <div id="status">狀態：N/A</div>
+
+    <script>
+        document.getElementById('checkButton').addEventListener('click', () => {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = '正在檢查...';
+            statusDiv.className = '';
+
+            // 使用 fetch API 發送請求
+            fetch('https://10.3.14.20:443', {
+                method: 'GET',
+                // 若遇到 CORS 問題，可能需要調整 mode
+                // mode: 'cors', // 預設即為 'cors'
+                // mode: 'no-cors', // 注意：使用 'no-cors' 時，無法獲取實際回應
+            })
+            .then(response => {
+                if (response.ok) {
+                    statusDiv.textContent = '狀態：Successful';
+                    statusDiv.classList.add('success');
+                } else {
+                    statusDiv.textContent = '狀態：Fail';
+                    statusDiv.classList.add('fail');
+                }
+            })
+            .catch(error => {
+                console.error('錯誤:', error);
+                statusDiv.textContent = '狀態：Fail';
+                statusDiv.classList.add('fail');
+            });
+        });
+    </script>
+</body>
+</html>
