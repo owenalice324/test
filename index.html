@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP 請求狀態檢查</title>
+    <title>IP 三方交握檢查</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
             text-align: center;
-            background-color: #f2f2f2;
+            background-color: #f9f9f9;
         }
         h1 {
             color: #333;
@@ -19,13 +19,14 @@
             font-size: 18px;
             margin: 20px 0;
             cursor: pointer;
-            background-color: #4CAF50;
+            background-color: #007BFF;
             color: white;
             border: none;
             border-radius: 5px;
+            transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #0056b3;
         }
         #status {
             font-size: 20px;
@@ -38,40 +39,61 @@
         .fail {
             color: red;
         }
+        /* 隱藏 iframe */
+        #checkIframe {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <h1>IP 請求狀態檢查</h1>
+    <h1>IP 三方交握檢查</h1>
     <button id="checkButton">檢查狀態</button>
     <div id="status">狀態：N/A</div>
+    <iframe id="checkIframe"></iframe>
 
     <script>
         document.getElementById('checkButton').addEventListener('click', () => {
             const statusDiv = document.getElementById('status');
+            const iframe = document.getElementById('checkIframe');
             statusDiv.textContent = '正在檢查...';
             statusDiv.className = '';
 
-            // 使用 fetch API 發送請求
-            fetch('https://10.3.14.20:443', {
-                method: 'GET',
-                // 若遇到 CORS 問題，可能需要調整 mode
-                // mode: 'cors', // 預設即為 'cors'
-                // mode: 'no-cors', // 注意：使用 'no-cors' 時，無法獲取實際回應
-            })
-            .then(response => {
-                if (response.ok) {
+            // 清除之前的載入事件
+            iframe.onload = null;
+            iframe.onerror = null;
+
+            // 設定新的 src，加入 cache_buster 以避免緩存影響
+            iframe.src = 'https://10.3.14.20:443/?cache_buster=' + Date.now();
+
+            let timeoutOccurred = false;
+
+            // 設定 2 秒的超時
+            const timeout = setTimeout(() => {
+                if (!timeoutOccurred) {
+                    timeoutOccurred = true;
+                    statusDiv.textContent = '狀態：Fail (超時)';
+                    statusDiv.classList.add('fail');
+                    // 清除 iframe 的 src 以停止載入
+                    iframe.src = 'about:blank';
+                }
+            }, 2000); // 2000 毫秒 = 2 秒
+
+            // 設定事件監聽器
+            iframe.onload = () => {
+                if (!timeoutOccurred) {
+                    clearTimeout(timeout);
                     statusDiv.textContent = '狀態：Successful';
                     statusDiv.classList.add('success');
-                } else {
+                }
+            };
+
+            iframe.onerror = () => {
+                if (!timeoutOccurred) {
+                    clearTimeout(timeout);
                     statusDiv.textContent = '狀態：Fail';
                     statusDiv.classList.add('fail');
                 }
-            })
-            .catch(error => {
-                console.error('錯誤:', error);
-                statusDiv.textContent = '狀態：Fail';
-                statusDiv.classList.add('fail');
-            });
+            };
         });
     </script>
 </body>
