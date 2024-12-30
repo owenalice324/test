@@ -1,502 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <title>sssDrayTek PortKnockingTool V1.0</title>
-  <!-- 引入 Google Fonts (Noto Sans TC) 讓整體字型更美觀 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link 
-    href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" 
-    rel="stylesheet"
-  >
-  <style>
-    /* 全局設定 */
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Noto Sans TC', sans-serif;
-      background: linear-gradient(120deg, #fdfbfb, #eeeeee);
-    }
-
-    /* 置中容器，加入陰影與白底卡片風格 */
-    #container {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 20px 30px;
-      background-color: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    /* 標題 */
-    h3 {
-      margin-top: 0;
-      margin-bottom: 10px;
-      text-align: center;
-      color: #333;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-
-    /* 表單表格 */
-    .form-table {
-      margin: 20px auto;
-      border-collapse: collapse;
-      width: 100%;
-      text-align: left;
-      background-color: #fafafa;
-      border-radius: 8px;
-      overflow: hidden; /* 讓邊角看起來更平滑 */
-    }
-    .form-table td {
-      padding: 12px 8px;
-      vertical-align: middle;
-      border-bottom: 1px solid #ddd;
-    }
-    .form-table tr:last-child td {
-      border-bottom: none;
-    }
-    .form-table label {
-      font-size: 15px;
-      font-weight: 700;
-      margin-right: 5px;
-    }
-
-    /* 輸入框、下拉式選單 */
-    input[type="text"],
-    input[type="number"],
-    select {
-      width: 90%;
-      padding: 8px 10px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    input:focus,
-    select:focus {
-      border-color: #4CAF50; /* 聚焦時綠色邊框 */
-    }
-
-    /* 按鈕們 */
-    .button-bar {
-      margin-top: 25px;
-      text-align: center;
-    }
-    button {
-      margin: 5px 10px;
-      padding: 10px 20px;
-      cursor: pointer;
-      background-color: #4caf50;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      font-size: 14px;
-      transition: background-color 0.2s, transform 0.2s;
-    }
-    button:hover {
-      background-color: #45a049;
-      transform: translateY(-2px);
-    }
-    button:active {
-      transform: translateY(0);
-    }
-
-    /* 顯示日誌(進度欄) */
-    #log {
-      margin-top: 25px;
-      width: 100%;
-      height: 200px;
-      overflow-y: auto;
-      background-color: #f9f9f9;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 10px;
-      font-family: Consolas, Monaco, monospace;
-      font-size: 13px;
-      white-space: pre-wrap; /* 讓換行更自然 */
-      color: #333;
-    }
-
-    /* 手機或窄螢幕時 RWD 調整 */
-    @media (max-width: 600px) {
-      #container {
-        margin: 20px auto;
-        padding: 15px;
-      }
-      .form-table td {
-        display: block;
-        width: 100%;
-        border-bottom: 1px solid #ddd;
-      }
-      .form-table tr {
-        margin-bottom: 10px;
-      }
-      .form-table label {
-        display: inline-block;
-        margin-bottom: 6px;
-      }
-      .button-bar {
-        display: flex;
-        flex-direction: column;
-      }
-      button {
-        width: 100%;
-        margin: 5px 0;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP 連接檢查工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+            background-color: #f2f2f2;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 20px 0;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #status {
+            font-size: 20px;
+            margin-top: 20px;
+            min-height: 24px;
+        }
+        .success {
+            color: green;
+        }
+        .fail {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-  <div id="container">
-    <h3>DrayTek PortKnockingTool V1.0</h3>
+    <h1>IP 連接檢查工具</h1>
+    <button id="checkButton">檢查連接</button>
+    <div id="status">狀態：N/A</div>
 
-    <table class="form-table">
-      <tr>
-        <td>
-          <label for="serviceName">Service Name:</label>
-          <input type="text" id="serviceName" placeholder="e.g. MyTestService" />
-        </td>
-        <td>
-          <label for="serviceSelect">Select:</label>
-          <select id="serviceSelect"></select>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <label>IP or Domain Name:</label>
-          <input type="text" id="ip" placeholder="e.g. 10.3.14.20" />
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <label>1st Port:</label>
-          <input type="number" id="knock" placeholder="e.g. 1222" />
-        </td>
-      </tr>
-      <!-- 新增 Public Port 和 Protocol 欄位 -->
-      <tr>
-        <td>
-          <label for="publicport">Public Port:</label>
-          <input type="number" id="publicport" placeholder="e.g. 443" />
-        </td>
-        <td>
-          <label for="protocol">Protocol:</label>
-          <select id="protocol">
-            <option value="http">HTTP</option>
-            <option value="https">HTTPS</option>
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <label>TOTP Key:</label>
-          <input type="text" id="totpKey" placeholder="e.g. JBSWY3DPEHPK3PXP" />
-        </td>
-      </tr>
-    </table>
+    <script>
+        document.getElementById('checkButton').addEventListener('click', () => {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = '正在檢查...';
+            statusDiv.className = '';
 
-    <div class="button-bar">
-      <button id="knockBtn">Knock Ports</button>
-      <button id="deleteBtn">Delete Service</button>
-    </div>
+            const targetURL = 'https://10.3.14.20:443';
 
-    <pre id="log"></pre>
-  </div>
+            // 設定超時機制（2秒）
+            const controller = new AbortController();
+            const signal = controller.signal;
+            const timeoutId = setTimeout(() => {
+                controller.abort();
+            }, 2000); // 2000 毫秒 = 2 秒
 
-  <script>
-  /**
-   * -------------------------------------------------------------
-   * Part A: TOTP 計算 (Base32 + HMAC-SHA1) 在前端完成
-   * -------------------------------------------------------------
-   */
-  function base32ToBytes(base32Str) {
-    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-    let bits = '';
-    // 去除 '=' padding 和空白後轉大寫
-    base32Str = base32Str.replace(/=+$/, '').replace(/\s+/g, '').toUpperCase();
-    for (let char of base32Str) {
-      const val = alphabet.indexOf(char);
-      if (val === -1) throw new Error(`Invalid Base32 character: ${char}`);
-      bits += val.toString(2).padStart(5, '0');
-    }
-    const bytes = [];
-    for (let i = 0; i + 7 < bits.length; i += 8) {
-      bytes.push(parseInt(bits.substring(i, i + 8), 2));
-    }
-    return new Uint8Array(bytes);
-  }
-
-  async function hmacSha1(key, data) {
-    // 使用 Web Crypto API
-    const cryptoKey = await crypto.subtle.importKey(
-      'raw',
-      key,
-      { name: 'HMAC', hash: { name: 'SHA-1' } },
-      false,
-      ['sign']
-    );
-    const signature = await crypto.subtle.sign('HMAC', cryptoKey, data);
-    return new Uint8Array(signature);
-  }
-
-  async function generateTOTP(base32Key, intervalSec = 30) {
-    // 1. Base32 解碼
-    const keyBytes = base32ToBytes(base32Key);
-
-    // 2. 取得當前時間戳 / 30秒
-    let counter = Math.floor(Date.now() / 1000 / intervalSec);
-    // 以 8 bytes big-endian 儲存
-    const counterBytes = new Uint8Array(8);
-    for (let i = 7; i >= 0; i--) {
-      counterBytes[i] = counter & 0xff;
-      counter >>= 8;
-    }
-
-    // 3. HMAC-SHA1 計算
-    const hmacResult = await hmacSha1(keyBytes, counterBytes);
-
-    // 4. 動態截取
-    const offset = hmacResult[hmacResult.length - 1] & 0x0f;
-    const binary =
-      ((hmacResult[offset] & 0x7f) << 24) |
-      ((hmacResult[offset + 1] & 0xff) << 16) |
-      ((hmacResult[offset + 2] & 0xff) << 8)  |
-      (hmacResult[offset + 3] & 0xff);
-
-    // 5. 取後 6 碼
-    const otp = binary % 1_000_000;
-    return otp.toString().padStart(6, '0');
-  }
-
-  /**
-   * -------------------------------------------------------------
-   * Part C: fetch + no-cors + 人工 Timeout + 敲門流程
-   * -------------------------------------------------------------
-   * 說明：
-   *  - 為了省去 CORS 問題與回應內容，我們使用 { mode: 'no-cors' }，只要送出 request 即可。
-   *  - 人工 Timeout 防止連線卡太久。
-   */
-  function timedFetch(url, options = {}, timeoutMs = 3000) { // 將 timeout 增加到 3000 ms
-    const controller = new AbortController();
-    const signal = controller.signal;
-    const fetchPromise = fetch(url, { ...options, signal });
-
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-      console.log(`Fetch to ${url} timed out after ${timeoutMs}ms`);
-    }, timeoutMs);
-
-    return fetchPromise
-      .then(response => {
-        console.log(`Fetch to ${url} succeeded`);
-        return response;
-      })
-      .catch(error => {
-        if (error.name === 'AbortError') {
-          console.log(`Fetch to ${url} aborted due to timeout`);
-        } else {
-          console.log(`Fetch to ${url} failed: ${error}`);
-        }
-        throw error;
-      })
-      .finally(() => clearTimeout(timeoutId));
-  }
-
-  async function knockPorts(ip, firstPort, totpKey, publicport, protocol) {
-    const logElem = document.getElementById('log');
-    logElem.textContent = ""; // 清空上一輪結果
-
-    try {
-      // 1. 先在前端自行計算 6 位數 TOTP
-      const tokenStr = await generateTOTP(totpKey);
-      const token = parseInt(tokenStr, 10);
-      logElem.textContent += `TOTP generated: ${tokenStr}\n`;
-
-      // 2. 計算 knock2, knock3
-      const knock2 = 1000 + Math.floor(token / 1000);
-      const knock3 = 2000 + (token % 1000);
-      const ports = [firstPort, knock2, knock3];
-
-      // 3. 依序敲前 3 Port
-      logElem.textContent += "Starting Port Knocking Sequence:\n";
-      const defaultProtocol = 'https'; // 固定協議為 HTTPS
-      const ordinals = ['1st', '2nd', '3rd']; 
-      let i=0;
-      let y=0;
-      for (let p of ports) {
-        const ordinal = ordinals[i] || `${i + 1}th`; // 適用於超出3個端口的情況
-        logElem.textContent += `Knocking on ${ordinal} port: ${p}\n`;
-        try {
-          await timedFetch(`${defaultProtocol}://${ip}:${p}`, { method: 'GET', mode: 'no-cors' }, 1000); // 增加超時時間
-          logElem.textContent += `Knocking port ${p} - request sent (no immediate error)\n`;
-        } catch (error) {
-          logElem.textContent += `Knocking port ${p} failed or timed out.\n`;
-        }
-        i++;
-      }
-
-      // 新增：檢查 publicport 和 protocol
-      if (publicport === 443 && protocol.toLowerCase() === 'https') {
-        logElem.textContent += `\nChecking HTTPS port ${publicport}...\n`;
-        try {
-          const response = await timedFetch(`https://${ip}:${publicport}/`, { method: 'GET', mode: 'no-cors' }, 500);
-          // 如果 fetch 成功，不會拋出錯誤
-          logElem.textContent += "HTTPS port open\n";
-          y=0;
-        } catch (error) {
-          logElem.textContent += "HTTPS port open fail!\n";
-          y=1;
-        }
-      }
-      if (y!=1)
-      {
-        logElem.textContent += "\nPorts knocking successfully.\nYou can now access the server. ";
-        logElem.innerHTML += `<a href="${protocol}://${ip}:${publicport}" target="_blank">${protocol}://${ip}:${publicport}</a>\n`;
-      }
-    } catch (err) {
-      logElem.textContent += `TOTP calculation failed: ${err}\n`;
-    }
-  }
-
-  /**
-   * -------------------------------------------------------------
-   * Part D: 儲存與載入 Service 資料 (localStorage)
-   * -------------------------------------------------------------
-   */
-  function getAllServices() {
-    const raw = localStorage.getItem('portKnockingServices');
-    if (!raw) {
-      return {};
-    }
-    return JSON.parse(raw);
-  }
-
-  function saveService(serviceName, ip, knock, totpKey, publicport, protocol) {
-    const services = getAllServices();
-    services[serviceName] = {
-      ip,
-      knock,
-      totpKey,
-      publicport,
-      protocol
-    };
-    localStorage.setItem('portKnockingServices', JSON.stringify(services));
-  }
-
-  function deleteService(serviceName) {
-    const services = getAllServices();
-    if (services[serviceName]) {
-      delete services[serviceName];
-      localStorage.setItem('portKnockingServices', JSON.stringify(services));
-    }
-  }
-
-  function getServiceData(serviceName) {
-    const services = getAllServices();
-    return services[serviceName] || null;
-  }
-
-  function refreshServiceSelect() {
-    const serviceSelect = document.getElementById('serviceSelect');
-    const services = getAllServices();
-    const keys = Object.keys(services);
-
-    serviceSelect.innerHTML = "";
-    const placeholder = document.createElement('option');
-    placeholder.value = "";
-    placeholder.text = "-- Select --";
-    serviceSelect.appendChild(placeholder);
-
-    keys.forEach(sName => {
-      const opt = document.createElement('option');
-      opt.value = sName;
-      opt.text = sName;
-      serviceSelect.appendChild(opt);
-    });
-  }
-
-  function onServiceSelectChanged() {
-    const serviceSelect = document.getElementById('serviceSelect');
-    const selected = serviceSelect.value;
-    if (!selected) return;
-
-    const data = getServiceData(selected);
-    if (data) {
-      document.getElementById('serviceName').value = selected;
-      document.getElementById('ip').value = data.ip || "";
-      document.getElementById('knock').value = data.knock || "";
-      document.getElementById('publicport').value = data.publicport || "";
-      document.getElementById('protocol').value = data.protocol || "http";
-      document.getElementById('totpKey').value = data.totpKey || "";
-    }
-  }
-
-  /**
-   * -------------------------------------------------------------
-   * Part E: 頁面載入後的事件綁定
-   * -------------------------------------------------------------
-   */
-  document.addEventListener('DOMContentLoaded', () => {
-    // 初始化下拉式選單
-    refreshServiceSelect();
-
-    // 綁定選單變更事件
-    document.getElementById('serviceSelect').addEventListener('change', onServiceSelectChanged);
-
-    // 綁定「Knock Ports」按鈕
-    document.getElementById('knockBtn').addEventListener('click', () => {
-      const serviceName = document.getElementById('serviceName').value.trim();
-      const srvip = document.getElementById('ip').value.trim();
-      const knock = parseInt(document.getElementById('knock').value, 10);
-      const publicport = parseInt(document.getElementById('publicport').value, 10);
-      const protocol = document.getElementById('protocol').value.trim();
-      const totpKey = document.getElementById('totpKey').value.trim();
-
-      if (!serviceName) {
-        alert("Please enter the Service!");
-        return;
-      }
-      if (!srvip || isNaN(knock) || isNaN(publicport) || !protocol || !totpKey) {
-        alert("Please ensure IP / 1st Port / Public Port / Protocol / TOTP Key are correctly filled!");
-        return;
-      }
-
-      // 儲存到 localStorage
-      saveService(serviceName, srvip, knock, totpKey, publicport, protocol);
-      // 更新下拉選單
-      refreshServiceSelect();
-      // 敲門
-      knockPorts(srvip, knock, totpKey, publicport, protocol);
-    });
-
-    // 綁定「Delete Service」按鈕
-    document.getElementById('deleteBtn').addEventListener('click', () => {
-      const serviceName = document.getElementById('serviceName').value.trim();
-      if (!serviceName) {
-        alert("Please enter or select the Service to delete!");
-        return;
-      }
-
-      deleteService(serviceName);
-      refreshServiceSelect();
-
-      // 清空表單欄位
-      document.getElementById('serviceName').value = "";
-      document.getElementById('ip').value = "";
-      document.getElementById('knock').value = "";
-      document.getElementById('publicport').value = "";
-      document.getElementById('protocol').value = "http";
-      document.getElementById('totpKey').value = "";
-
-      alert(`Service '${serviceName}' has been deleted.`);
-    });
-  });
-  </script>
+            fetch(targetURL, {
+                method: 'GET',
+                mode: 'cors', // 確保使用 CORS 模式
+                signal: signal
+            })
+            .then(response => {
+                clearTimeout(timeoutId);
+                if (response.status !== 404) {
+                    statusDiv.textContent = '狀態：Open';
+                    statusDiv.classList.add('success');
+                } else {
+                    statusDiv.textContent = '狀態：Fail (404)';
+                    statusDiv.classList.add('fail');
+                }
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                if (error.name === 'AbortError') {
+                    statusDiv.textContent = '狀態：Fail (超時)';
+                } else {
+                    statusDiv.textContent = `狀態：Fail (${error.message})`;
+                }
+                statusDiv.classList.add('fail');
+            });
+        });
+    </script>
 </body>
 </html>
