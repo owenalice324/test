@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP 連接檢查工具</title>
+    <title>IP 狀態檢查</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
             text-align: center;
-            background-color: #f2f2f2;
+            background-color: #f9f9f9;
         }
         h1 {
             color: #333;
@@ -17,7 +17,7 @@
         button {
             padding: 15px 30px;
             font-size: 18px;
-            margin: 20px 0;
+            margin: 20px 10px;
             cursor: pointer;
             background-color: #007BFF;
             color: white;
@@ -39,52 +39,129 @@
         .fail {
             color: red;
         }
+        /* 隱藏元素 */
+        #checkImage, #checkScript {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <h1>IP 連接檢查工具</h1>
-    <button id="checkButton">檢查連接</button>
+    <h1>IP 狀態檢查</h1>
+    <button id="checkButton">檢查狀態</button>
     <div id="status">狀態：N/A</div>
+    <img id="checkImage" />
+    <script id="checkScript"></script>
 
     <script>
-        document.getElementById('checkButton').addEventListener('click', () => {
+        // 新增 WebSocket 檢查函數
+        function checkWebSocket(ip, port, timeoutMs = 2000) {
+            return new Promise((resolve, reject) => {
+                const ws = new WebSocket(`ws://${ip}:${port}`);
+
+                let timeout = setTimeout(() => {
+                    ws.close();
+                    reject(new Error('WebSocket Timeout'));
+                }, timeoutMs);
+
+                ws.onopen = () => {
+                    clearTimeout(timeout);
+                    ws.close();
+                    resolve(true);
+                };
+
+                ws.onerror = (err) => {
+                    clearTimeout(timeout);
+                    reject(new Error('WebSocket Error'));
+                };
+            });
+        }
+
+        document.getElementById('checkButton').addEventListener('click', async () => {
             const statusDiv = document.getElementById('status');
             statusDiv.textContent = '正在檢查...';
             statusDiv.className = '';
 
-            const targetURL = 'https://10.3.14.20:443';
+            // 目標 IP 和端口
+            const ip = '10.3.14.20';
+            const port = 443; // HTTPS 端口
 
-            // 設定超時機制（2秒）
-            const controller = new AbortController();
-            const signal = controller.signal;
-            const timeoutId = setTimeout(() => {
-                controller.abort();
-            }, 2000); // 2000 毫秒 = 2 秒
+            // 超時時間
+            const timeoutMs = 2000; // 2 秒
 
-            fetch(targetURL, {
-                method: 'GET',
-                mode: 'cors', // 確保使用 CORS 模式
-                signal: signal
-            })
-            .then(response => {
-                clearTimeout(timeoutId);
-                if (response.status !== 404) {
-                    statusDiv.textContent = '狀態：Open';
-                    statusDiv.classList.add('success');
-                } else {
-                    statusDiv.textContent = '狀態：Fail (404)';
-                    statusDiv.classList.add('fail');
-                }
-            })
-            .catch(error => {
-                clearTimeout(timeoutId);
-                if (error.name === 'AbortError') {
-                    statusDiv.textContent = '狀態：Fail (超時)';
-                } else {
-                    statusDiv.textContent = `狀態：Fail (${error.message})`;
-                }
+            // 初始化結果
+            let results = [];
+
+            // 1. 使用 Image 加載方法
+            try {
+                await new Promise((resolve, reject) => {
+                    const img = document.getElementById('checkImage');
+                    img.src = `https://${ip}:${port}/path/to/your/image.png?cache_buster=${Date.now()}`;
+
+                    const timeoutId = setTimeout(() => {
+                        img.src = '';
+                        reject(new Error('Image Timeout'));
+                    }, timeoutMs);
+
+                    img.onload = () => {
+                        clearTimeout(timeoutId);
+                        resolve(true);
+                    };
+
+                    img.onerror = () => {
+                        clearTimeout(timeoutId);
+                        reject(new Error('Image Load Failed'));
+                    };
+                });
+                results.push('Image: Successful');
+            } catch (error) {
+                results.push(`Image: Fail (${error.message})`);
+            }
+
+            // 2. 使用 Script 加載方法
+            try {
+                await new Promise((resolve, reject) => {
+                    const script = document.getElementById('checkScript');
+                    script.src = `https://${ip}:${port}/path/to/your/script.js?cache_buster=${Date.now()}`;
+
+                    const timeoutId = setTimeout(() => {
+                        script.src = '';
+                        reject(new Error('Script Timeout'));
+                    }, timeoutMs);
+
+                    script.onload = () => {
+                        clearTimeout(timeoutId);
+                        resolve(true);
+                    };
+
+                    script.onerror = () => {
+                        clearTimeout(timeoutId);
+                        reject(new Error('Script Load Failed'));
+                    };
+                });
+                results.push('Script: Successful');
+            } catch (error) {
+                results.push(`Script: Fail (${error.message})`);
+            }
+
+            // 3. 使用 WebSocket 方法
+            try {
+                await checkWebSocket(ip, port, timeoutMs);
+                results.push('WebSocket: Successful');
+            } catch (error) {
+                results.push(`WebSocket: Fail (${error.message})`);
+            }
+
+            // 根據結果更新狀態
+            if (results.includes('Image: Successful') || results.includes('Script: Successful') || results.includes('WebSocket: Successful')) {
+                statusDiv.textContent = '狀態：Successful';
+                statusDiv.classList.add('success');
+            } else {
+                statusDiv.textContent = '狀態：Fail';
                 statusDiv.classList.add('fail');
-            });
+            }
+
+            // 輸出詳細結果
+            console.log('Check Results:', results.join('\n'));
         });
     </script>
 </body>
