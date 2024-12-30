@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>DrayTek PortKnockingTool V1.0</title>
+  <title>sssDrayTek PortKnockingTool V1.0</title>
   <!-- 引入 Google Fonts (Noto Sans TC) 讓整體字型更美觀 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -334,9 +334,9 @@
         logElem.textContent += `Knocking on ${ordinal} port: ${p}\n`;
         try {
           await timedFetch(`${defaultProtocol}://${ip}:${p}`, { method: 'GET', mode: 'no-cors' }, 1000); // 增加超時時間
-          //logElem.textContent += `Knocking port ${p} - request sent (no immediate error)\n`;
+          logElem.textContent += `Knocking port ${p} - request sent (no immediate error)\n`;
         } catch (error) {
-          //logElem.textContent += `Knocking port ${p} failed or timed out.\n`;
+          logElem.textContent += `Knocking port ${p} failed or timed out.\n`;
         }
         i++;
       }
